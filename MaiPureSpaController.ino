@@ -1,4 +1,4 @@
-/*
+.//*
  * MaiPureSpaController.ino
  * the pool controller sketch
  *
@@ -18,10 +18,10 @@
 #include <PubSubClient.h>
 
 #define MQTT_CLIENT     "Hot_Tub_Controller"                 // mqtt client_id
-#define MQTT_SERVER     "192.168.0.2"                        // mqtt server
+#define MQTT_SERVER     "10.2.0.250"                        // mqtt server
 #define MQTT_PORT       1883                                 // mqtt port
-#define MQTT_TOPIC      "home/hot_tub_controller"            // mqtt topic
-#define MQTT_USER       "ha-sonoff"                          // mqtt user
+#define MQTT_TOPIC      "Spa/hot_tub_controller"            // mqtt topic
+#define MQTT_USER       "webstas"                          // mqtt user
 
 #define VERSION    "\n\n-------------- Intex Spa WiFi Controller v1.01pOTA  --------------"
 
@@ -66,8 +66,8 @@ bool flushSync = false;                               // True when display reset
 char digit[5] = "????";
 int  curTempTmp;                                      // current temperature candidate
 bool curTempTmpValid = false;                         // current temperature candidate is valid / has not timed out
-int  curTemp = 20;                                    // current temperature
-int  setTemp = 38;                                    // target temperature
+int  curTemp = 100;                                   // current temperature
+int  setTemp = 100;                                   // target temperature
 int  lstTemp;                                         // last valid display reading
 
 bool BuzzerEnabled = false;                           // (Do not Change) Internal buzzer state
@@ -192,7 +192,7 @@ ICACHE_RAM_ATTR void classifyTemperature() {
 }
 
 ICACHE_RAM_ATTR bool validTempValue(int value) {
-  return (value >= 20 && value <= 40);
+  return (value >= 20 && value <= 120);
 }
 
 enum Led {
@@ -297,6 +297,7 @@ void buzzSignal(int nBeep) {
 };
 
 void initial_publish() {
+
   mqttLog("Publishing initial values . . .");
   mqttPublish("power_state", (powerState ? "on":"off"));
   mqttPublish("buzzer_state", (BuzzerEnabled ? "on":"off"));
@@ -304,6 +305,7 @@ void initial_publish() {
   mqttPublish("bubble_state", (bubbleState ? "on":"off"));
   mqttPublish("heater_state", (heaterState ? "on":"off"));
   mqttPublish("heating_state", (heatingState ? "on":"off"));
+  mqttPublish("ip_addr", WiFi.localIP().toString());
 }
 
 void SPI_begin() {
@@ -916,7 +918,7 @@ void loop() {
 void checkConnection() {
   if (WiFi.status() == WL_CONNECTED)  {
     if (mqttClient.connected()) {
-      mqttLog("mqtt broker connection . . . . . . . . . . OK");
+      mqttLog("mqtt broker connection . . . . . . . . . . OK" );
     } 
     else {
       Serial.println("mqtt broker connection . . . . . . . . . . LOST");
